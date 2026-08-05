@@ -35,7 +35,7 @@ response = Response(
         Article(
             web_url='web_url8',
             snippet='snippet4',
-            print_page=230,
+            print_page='print_page2',
             print_section='print_section6',
             source='source8',
             additional_properties={
@@ -45,7 +45,7 @@ response = Response(
         Article(
             web_url='web_url8',
             snippet='snippet4',
-            print_page=230,
+            print_page='print_page2',
             print_section='print_section6',
             source='source8',
             additional_properties={

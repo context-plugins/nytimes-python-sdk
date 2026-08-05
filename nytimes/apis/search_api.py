@@ -21,6 +21,9 @@ from nytimes.http.http_method_enum import HttpMethodEnum
 from nytimes.models.returns_an_array_of_articles_response import (
     ReturnsAnArrayOfArticlesResponse,
 )
+from nytimes.models.returns_an_array_of_articles_response_1 import (
+    ReturnsAnArrayOfArticlesResponse1,
+)
 
 
 class SearchApi(BaseApi):
@@ -89,6 +92,78 @@ class SearchApi(BaseApi):
             ResponseHandler()
             .deserializer(APIHelper.json_deserialize)
             .deserialize_into(ReturnsAnArrayOfArticlesResponse.from_dictionary)
+            .is_api_response(True)
+            .local_error("400",
+                "Bad request. Check your query parameters.",
+                ApiException)
+            .local_error("401",
+                "Unauthorized request. Make sure api-key is set.",
+                ApiException)
+            .local_error("429",
+                "Too many requests. You reached your per minute or per day rate limit"
+                ".",
+                ApiException),
+        ).execute()
+
+    def returns_an_array_of_articles_1(self,
+                                       begin_date=None,
+                                       end_date=None,
+                                       fq=None,
+                                       page=None,
+                                       q=None,
+                                       sort="best"):
+        """Perform a GET request to /articlesearch.json.
+
+        Search for NYT articles by keywords and filters.
+
+        Args:
+            begin_date (str, optional): Begin date (e.g. 20120101)
+            end_date (str, optional): End date (e.g. 20121231)
+            fq (str, optional): Filter query
+            page (int, optional): Page number (0, 1, ...)
+            q (str, optional): Query
+            sort (Sort, optional): Sort order
+
+        Returns:
+            ApiResponse: An object with the response value as well as other useful
+                information such as status codes and headers. An array of articles.
+
+        Raises:
+            ApiException: When an error occurs while fetching the data from the
+                remote API. This exception includes the HTTP Response code, an error
+                message, and the HTTP body that was received in the request.
+
+        """
+        return super().new_api_call_builder.request(
+            RequestBuilder().server(Server.DEFAULT1)
+            .path("/articlesearch.json")
+            .http_method(HttpMethodEnum.GET)
+            .query_param(Parameter()
+                .key("begin_date")
+                .value(begin_date))
+            .query_param(Parameter()
+                .key("end_date")
+                .value(end_date))
+            .query_param(Parameter()
+                .key("fq")
+                .value(fq))
+            .query_param(Parameter()
+                .key("page")
+                .value(page))
+            .query_param(Parameter()
+                .key("q")
+                .value(q))
+            .query_param(Parameter()
+                .key("sort")
+                .value(sort))
+            .header_param(Parameter()
+                .key("accept")
+                .value("application/json"))
+            .auth(Single("apikey")),
+        ).response(
+            ResponseHandler()
+            .deserializer(APIHelper.json_deserialize)
+            .deserialize_into(ReturnsAnArrayOfArticlesResponse1.from_dictionary)
             .is_api_response(True)
             .local_error("400",
                 "Bad request. Check your query parameters.",

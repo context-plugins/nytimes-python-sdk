@@ -60,7 +60,7 @@ client = NytimesClient.from_environment(dotenv_path='/path/to/.env')
 
 See the [Environment-Based Client Initialization](../doc/environment-based-client-initialization.md) section for details.
 
-## NYTimes Client
+## nytimes Client
 
 The gateway for the SDK. This class acts as a factory for the Apis and also holds the configuration of the SDK.
 

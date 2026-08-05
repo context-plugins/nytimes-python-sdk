@@ -13,7 +13,7 @@
 |  --- | --- | --- | --- |
 | `web_url` | `str` | Optional | Article URL. |
 | `snippet` | `str` | Optional | - |
-| `print_page` | `int` | Optional | Page in print (e.g. 1). |
+| `print_page` | `str` | Optional | Page in print (e.g. "1"). Empty string when not applicable. |
 | `print_section` | `str` | Optional | Section in print (e.g. A). |
 | `source` | `str` | Optional | - |
 | `multimedia` | [`List[Multimedia]`](../../doc/models/multimedia.md) | Optional | - |
@@ -40,7 +40,7 @@ from nytimes.models.article import Article
 article = Article(
     web_url='web_url8',
     snippet='snippet6',
-    print_page=188,
+    print_page='print_page8',
     print_section='print_section4',
     source='source2',
     additional_properties={
