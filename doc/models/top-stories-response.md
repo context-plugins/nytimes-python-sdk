@@ -16,7 +16,7 @@
 | `section` | `str` | Optional | - |
 | `last_updated` | `str` | Optional | - |
 | `num_results` | `int` | Optional | - |
-| `results` | [`List[Article2]`](../../doc/models/article-2.md) | Optional | - |
+| `results` | [`List[Article1]`](../../doc/models/article-1.md) | Optional | - |
 | `additional_properties` | `Dict[str, Any]` | Optional | - |
 
 ## Example

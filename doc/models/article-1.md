@@ -11,23 +11,25 @@
 
 | Name | Type | Tags | Description |
 |  --- | --- | --- | --- |
-| `web_url` | `str` | Optional | Article URL. |
-| `snippet` | `str` | Optional | - |
-| `print_page` | `int` | Optional | Page in print (e.g. 1). |
-| `print_section` | `str` | Optional | Section in print (e.g. A). |
-| `source` | `str` | Optional | - |
-| `multimedia` | [`List[Multimedia]`](../../doc/models/multimedia.md) | Optional | - |
-| `headline` | [`Headline`](../../doc/models/headline.md) | Optional | - |
-| `keywords` | [`List[Keyword]`](../../doc/models/keyword.md) | Optional | - |
-| `pub_date` | `str` | Optional | Publication date. |
-| `document_type` | `str` | Optional | Document type (article, multimedia). |
-| `news_desk` | `str` | Optional | Desk in the newsroom that worked on the story (Foreign, Metro, Sports, ...). |
-| `section_name` | `str` | Optional | Section that the article appeared in (New York, Sports, World, ...). |
-| `byline` | [`Byline`](../../doc/models/byline.md) | Optional | - |
-| `type_of_material` | `str` | Optional | Type of asset (Correction, News, Op-Ed, Review, Video, ...). |
-| `id` | `str` | Optional | - |
-| `word_count` | `int` | Optional | Number of words in the article. |
-| `uri` | `str` | Optional | Uniquely identifies an asset. |
+| `section` | `str` | Optional | - |
+| `subsection` | `str` | Optional | - |
+| `title` | `str` | Optional | - |
+| `abstract` | `str` | Optional | - |
+| `url` | `str` | Optional | - |
+| `uri` | `str` | Optional | - |
+| `byline` | `str` | Optional | - |
+| `item_type` | `str` | Optional | - |
+| `updated_date` | `str` | Optional | - |
+| `created_date` | `str` | Optional | - |
+| `published_date` | `str` | Optional | - |
+| `material_type_facet` | `str` | Optional | - |
+| `kicker` | `str` | Optional | - |
+| `des_facet` | `List[str]` | Optional | - |
+| `org_facet` | `List[str]` | Optional | - |
+| `per_facet` | `List[str]` | Optional | - |
+| `geo_facet` | `List[str]` | Optional | - |
+| `multimedia` | [`List[Multimedium]`](../../doc/models/multimedium.md) | Optional | - |
+| `short_url` | `str` | Optional | - |
 | `additional_properties` | `Dict[str, Any]` | Optional | - |
 
 ## Example
@@ -38,11 +40,11 @@ import jsonpickle
 from nytimes.models.article_1 import Article1
 
 article_1 = Article1(
-    web_url='web_url8',
-    snippet='snippet4',
-    print_page=122,
-    print_section='print_section6',
-    source='source8',
+    section='section0',
+    subsection='subsection2',
+    title='title8',
+    abstract='abstract8',
+    url='url0',
     additional_properties={
         'exampleAdditionalProperty': jsonpickle.decode('{"key1":"val1","key2":"val2"}')
     }

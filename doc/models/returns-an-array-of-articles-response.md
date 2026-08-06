@@ -34,7 +34,7 @@ returns_an_array_of_articles_response = ReturnsAnArrayOfArticlesResponse(
             ArticleSearchArticle(
                 web_url='web_url8',
                 snippet='snippet4',
-                print_page=230,
+                print_page='print_page2',
                 print_section='print_section6',
                 source='source8',
                 additional_properties={
@@ -44,7 +44,7 @@ returns_an_array_of_articles_response = ReturnsAnArrayOfArticlesResponse(
             ArticleSearchArticle(
                 web_url='web_url8',
                 snippet='snippet4',
-                print_page=230,
+                print_page='print_page2',
                 print_section='print_section6',
                 source='source8',
                 additional_properties={

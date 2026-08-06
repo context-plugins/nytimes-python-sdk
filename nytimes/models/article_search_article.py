@@ -25,7 +25,7 @@ class ArticleSearchArticle(object):
     Attributes:
         web_url (str): Article URL.
         snippet (str): The model property of type str.
-        print_page (int): Page in print (e.g. 1).
+        print_page (str): Page in print (e.g. "1"). Empty string when not applicable.
         print_section (str): Section in print (e.g. A).
         source (str): The model property of type str.
         multimedia (ArticleSearchMultimedia): The model property of type

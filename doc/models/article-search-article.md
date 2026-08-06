@@ -13,7 +13,7 @@
 |  --- | --- | --- | --- |
 | `web_url` | `str` | Optional | Article URL. |
 | `snippet` | `str` | Optional | - |
-| `print_page` | `int` | Optional | Page in print (e.g. 1). |
+| `print_page` | `str` | Optional | Page in print (e.g. "1"). Empty string when not applicable. |
 | `print_section` | `str` | Optional | Section in print (e.g. A). |
 | `source` | `str` | Optional | - |
 | `multimedia` | [`ArticleSearchMultimedia`](../../doc/models/article-search-multimedia.md) | Optional | - |
@@ -39,7 +39,7 @@ from nytimes.models.article_search_article import ArticleSearchArticle
 article_search_article = ArticleSearchArticle(
     web_url='web_url2',
     snippet='snippet2',
-    print_page=188,
+    print_page='print_page4',
     print_section='print_section0',
     source='source8',
     additional_properties={
