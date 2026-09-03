@@ -1,814 +1,145 @@
+# The New York Times APIs SDK
 
-# Getting Started with nytimes
+[![Built with APIMatic][apimatic-badge]][apimatic-url] [![License: MIT][license-badge]][license-url] [![Python 3.10+][python-badge]][python-url]
 
-## Introduction
+The The New York Times APIs SDK for Python provides access to the [The New York Times APIs REST APIs](https://developer.nytimes.com/apis) from Python applications.
 
-The Archive API returns an array of NYT articles for a given month, going back to 1851.  Its response fields are the same as the Article Search API. The Archive API is very useful if you want to build your own database of NYT article metadata. You simply pass the API the year and month and it returns a JSON object with all articles for that month.  The API response size can be large (~20mb) and isn't meant to be called from the browser.
+> [!TIP]
+> **Looking for a specific signature, model, enum, or error type?** This SDK ships a generated
+> **[SDK map](sdk-map.md)** -- a lookup index of the SDK's entire Python surface. Consult it before
+> scanning the source tree; details under [SDK map](#sdk-map).
 
-```sh
-/{year}/{month}.json
-```
+The New York Times developer platform is made up of several independent APIs. This document is the
+entry point for all of them: it declares the shared server, the shared API-key security scheme and
+the tags that group the endpoints, and then links every operation with a JSON Reference (`$ref`) to
+the specification file that owns it. No endpoint is duplicated here - the individual API files stay
+the single source of truth.
 
-### Example Call
+| API | Version | Base path | Specification file |
+| --- | --- | --- | --- |
+| Article Search | 2.0.0 | `/svc/search/v2` | [`articlesearch/articlesearch-product.yaml`](./articlesearch/articlesearch-product.yaml) |
+| Archive | 2.0.0 | `/svc/archive/v1` | [`archive/archive-product.yaml`](./archive/archive-product.yaml) |
+| Top Stories | 2.0.0 | `/svc/topstories/v2` | [`top-stories/top-stories-product.yaml`](./top-stories/top-stories-product.yaml) |
+| Most Popular | 2.0.0 | `/svc/mostpopular/v2` | [`most-popular/most-popular-product.yaml`](./most-popular/most-popular-product.yaml) |
+| Books | 3.0.0 | `/svc/books/v3` | [`books/books-product.yaml`](./books/books-product.yaml) |
+| RSS | 2.0.0 | `/services/xml/rss/nyt` | [`rss/rss-api.yaml`](./rss/rss-api.yaml) |
 
-```sh
-https://api.nytimes.com/svc/archive/v1/2024/1.json?api-key=yourkey
-```
+## Authentication
 
-### Working with the Data
+Every API except the RSS feeds requires an API key, passed as the `api-key` query parameter. Create
+one at <https://developer.nytimes.com/my-apps>. Rate limits are enforced per key and per API.
 
-The [jq](https://jqlang.github.io/jq/) command is very helpful with viewing, filtering, and transforming the JSON data.
 
-```sh
-curl -s -o nyt-2024-1.json https://api.nytimes.com/svc/archive/v1/2024/1.json?api-key=yourkey
-jq . nyt-2024-1.json | more
-```
-
-For example you can use `jq` along with `sort` and `uniq` to get article section counts.
-
-```sh
-jq -r '.response.docs[].section_name' nyt-2024-1.json | sort | uniq -c | sort -rn
-767 U.S.
-497 World
-...
-```
-
-Or use `jq` to get URLs for articles in the "Politics" subsection.
-
-```sh
-jq -r '.response.docs[] | select(.subsection_name == "Politics") | .web_url' nyt-2024-1.json
-```
-
-Or print the headline and byline for articles with the "Restaurants" keyword.
-
-```sh
-jq -r '.response.docs[] | select(.keywords[].value == "Restaurants") | "\(.headline.main) \(.byline.original)"' nyt-2024-1.json
-```
-
-Or get article URLs with print section and print page.
-
-```sh
-jq -r '.response.docs[] | select(.print_section != null) | "\(.print_section) \(.print_page) \(.web_url)"' nyt-2024-1.json
-```
-
-Or use [imgcat](https://pypi.org/project/imgcat/) to show images from "Food" articles in [iTerm2](https://iterm2.com/).
-
-```sh
-jq -r '.response.docs[] | select(.section_name == "Food") | .multimedia[] | select(.crop_name == "articleLarge") | .url' nyt-2024-1.json | head -n 10 | xargs -n1 -I\{\} /bin/bash -c 'URL="https://static01.nyt.com/{}"; echo "$URL"; sleep 5; curl -s "$URL" | imgcat'
-```
-
-,
-Use the Article Search API to look up articles by keyword.  You can refine your search using filters.
-
-```
-/articlesearch.json?q={query}&fq={filter}
-```
-
-### Example Call
-
-```
-https://api.nytimes.com/svc/search/v2/articlesearch.json?q=election&api-key=yourkey
-```
-
-### Recent API Changes
-
-**Note:** On April 8, 2025 the Article Search API changed.
-
-- The filter field names are different (e.g. source is now source.vernacular), see the Filter Query Fields table below for the full list of the new field names.
-- The `facet`, `facet_fields`, `facet_filter`, and `fl` query parameters are no longer supported.
-- The `multimedia` array in the response is simplified to only contain two crops: default and thumbnail.
-
-### Filtering Your Search
-
-Use filters to narrow the scope of your search. You can specify the fields and the values that your query will be filtered on. The Article Search API uses [Elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax). The filter query (fq) uses standard [Lucene syntax](http://www.lucenetutorial.com/lucene-query-syntax.html). Separate the filter field name and value with a colon, and surround multiple values with parentheses.
-
-```
-field-name:("value1", "value2", ... "value n")
-```
-
-The default connector for values in parentheses is OR. If you declare an explicit boolean value, it must be capitalized (e.g. AND).  You can filter on multiple values and fields.
-
-```
-field-name-1:("value1") AND field-name-2:("value2", "value3")
-```
-
-For a list of all fields you can filter on, see the Filter Query Fields table below.
-
-You can also query by search text.
-
-#### Pagination
-
-The Article Search API returns a max of 10 results at a time. The meta node in the response contains the total number of matches ("hits") and the current offset. Use the page query parameter to paginate thru results (page=0 for results 1-10, page=1 for 11-20, ...). You can paginate thru up to 100 pages (1,000 results). If you get too many results try filtering by date range. Hits shows 10,000 if there are 10,000 or more results.
-
-#### Filter Query Examples
-
-Here are some example filter queries.
-
-Restrict your search to articles with International New York Times as the source:
-
-```
-fq=source.vernacular:"International New York Times"
-```
-
-Restrict your search to articles from either the Culture or Foreign desks:
-
-```
-fq=desk:("Culture", "Foreign")
-```
-
-Restrict your search to articles that are about New York City and from the Culture desk:
-
-```
-fq=desk:"Culture" AND timesTag.location:"New York City"
-```
-
-##### Example URL
-
-<https://api.nytimes.com/svc/search/v2/articlesearch.json?fq=desk%3A%22Culture%22%20AND%20timesTag.location%3A%22New%20York%20City%22&api-key={api-key}>
-
-#### Query Examples
-
-If you do not specify a field, the scope of the query will look for matches in the body, headline and byline. The example below will restrict your search to articles with 'climate' and 'change' in the body, headline or byline:
-
-```
-q=climate change
-```
-
-Put in quotes to do an exact match:
-
-```
-q="climate change"
-```
-
-##### Example URL
-
-<https://api.nytimes.com/svc/search/v2/articlesearch.json?q=%22climate%20change%22&api-key={api-key}>
-
-#### Combo Examples
-
-You can search using both the query parameter (q) and the filter query parameter (fq) at the same time.
-
-Find articles with the word Pokemon that were on the print paper's front page:
-
-```
-q=Pokemon fq=Article.printInformation.page:1 AND Article.printInformation.section:("A", "1")
-```
-
-Find news articles with the word sofa and tagged with the Germany location Tag.
-
-```
-q=sofa fq=typeOfMaterials:News AND timesTag.location:Germany
-```
-
-##### Example URL
-
-<https://api.nytimes.com/svc/search/v2/articlesearch.json?q=sofa&begin_date=19960122&end_date=20060122&fq=typeOfMaterials%3ANews%20AND%20timesTag.location%3AGermany&api-key={api-key}>
-
-#### Times Tags Examples
-
-The New York Times maintains a taxonomy of semantic tags, known as Times Tags.
-You can filter by Times Tags.
-
-Get articles tagged with the "Olympic Games (2026)" subject tag:
-
-```
-fq=timesTag.subject:"Olympic Games (2026)"
-```
-
-Get articles that have the "United Nations" and the "Security Council (UN)" organization tags:
-
-```
-fq=timesTag.organization:("United Nations" AND "Security Council (UN)")
-```
-
-##### Example URL
-
-<https://api.nytimes.com/svc/search/v2/articlesearch.json?&fq=timesTag.organization%3A(%22United%20Nations%22%20AND%20%22Security%20Council%20(UN)%22)&api-key={api-key}>
-
-#### Reviews Examples
-
-Get book reviews.
-
-```
-fq=typeOfMaterials:Review AND section.name:Books
-```
-
-Get movie reviews.
-
-```
-fq=typeOfMaterials:Review AND section.name:Movies
-```
-
-##### Example URL
-
-<https://api.nytimes.com/svc/search/v2/articlesearch.json?&fq=typeOfMaterials%3AReview%20AND%20section.name%3ABooks&begin_date=20250101&end_date=20260101&api-key={api-key}>
-
-#### Filter Query Fields
-
-Field                              | Type
----------------------------------- | -------
-addendums.body                     | Text
-addendums.type                     | Keyword
-bylines.prefix                     | Keyword
-bylines.renderedRepresentation     | Text
-collections.collectionType         | Keyword
-collections.name                   | Keyword
-collections.uri                    | Keyword
-collections.slug                   | Keyword
-column.collectionType              | Keyword
-column.name                        | Keyword
-column.uri                         | Keyword
-contributingDesks                  | Keyword
-credits.creator.displayName        | Text
-credits.creator.role               | Keyword
-credits.creator.uri                | Keyword
-desk                               | Keyword
-desk.contains                      | Text
-firstPublished                     | Date
-headline.default                   | Text
-headline.seo                       | Text
-kicker                             | Keyword
-kicker.contains                    | Text
-language.code                      | Keyword
-language.name                      | Keyword
-lastMajorModification              | Date
-lastModified                       | Date
-originalDesk.type                  | Keyword
-previouslyPublishedUrls            | Keyword
-section.displayName                | Keyword
-section.displayName.contains       | Text
-section.name                       | Keyword
-section.uri                        | Keyword
-slug                               | Keyword
-source.displayName                 | Text
-source.vernacular                  | Text
-source.uri                         | Keyword
-sourceApplication                  | Keyword
-sourceId                           | Keyword
-sourcePublisher                    | Keyword
-subsection.displayName             | Keyword
-subsection.displayName.contains    | Text
-subsection.name                    | Keyword
-subsection.uri                     | Keyword
-summary                            | Text
-timesTags.displayName              | Keyword
-timesTags.type                     | Keyword
-timesTags.uri                      | Keyword
-timesTags.vernacular               | Keyword
-timesTag.location                  | Keyword
-timesTag.location.contains         | Text
-timesTag.organization              | Keyword
-timesTag.organization.contains     | Text
-timesTag.person                    | Keyword
-timesTag.person.contains           | Text
-timesTag.subject                   | Keyword
-timesTag.subject.contains          | Text
-timesTag.title                     | Keyword
-timesTag.title.contains            | Text
-tone                               | Keyword
-typeOfMaterials                    | Keyword
-type                               | Keyword
-uri                                | Keyword
-url                                | Keyword
-
-##### Article Specific Filters
-
-Field                                     | Type
------------------------------------------ | -------
-Article.body                              | Text
-Article.dateline.renderedDateline         | Text
-Article.printInformation.edition          | Keyword
-Article.printInformation.headline         | Text
-Article.printInformation.illustrationText | Keyword
-Article.printInformation.page             | Keyword
-Article.printInformation.reconciled       | Boolean
-Article.printInformation.section          | Keyword
-Article.wordCount                         | Integer
-
-##### Interactive Specific Filters
-
-Field                                         | Type
---------------------------------------------- | -------
-Interactive.printInformation.edition          | Keyword
-Interactive.printInformation.headline         | Text
-Interactive.printInformation.illustrationText | Keyword
-Interactive.printInformation.page             | Keyword
-Interactive.printInformation.reconciled       | Boolean
-Interactive.printInformation.section          | Keyword
-Interactive.textFormat.unformattedText        | Text
-
-##### Desk Values (partial list)
-
-* Arts&Leisure
-* BookReview
-* Business
-* Climate
-* Corrections
-* Culture
-* Dining
-* Español
-* Express
-* Foreign
-* Games
-* Graphics
-* Learning
-* Letters
-* Magazine
-* Metro
-* NYTNow
-* National
-* Obits
-* OpEd
-* Podcasts
-* Politics
-* RealEstate
-* Science
-* Styles
-* Summary
-* SundayBusiness
-* TStyle
-* Travel
-* Washington
-* Weather
-* Weekend
-* Well
-
-##### Section Names (partial list)
-
-* Arts
-* Books
-* Briefing
-* Climate
-* Corrections
-* En español
-* Fashion
-* Food
-* Gameplay
-* Guide
-* Headway
-* Health
-* Home Page
-* Job Market
-* Lens
-* Magazine
-* Movies
-* Multimedia/Photos
-* New York
-* Obituaries
-* Opinion
-* Parenting
-* Podcasts
-* Reader Center
-* Real Estate
-* Science
-* Smarter Living
-* Sports
-* Style
-* Sunday Review
-* T Brand
-* T Magazine
-* The Learning Network
-* The New York Times Presents
-* The Upshot
-* The Weekly
-* Theater
-* Times Insider
-* Today's Paper
-* Travel
-* U.S.
-* Universal
-* Well
-* World
-* Your Money
-
-##### Type of Material Values
-
-* Addendum
-* An Analysis
-* An Appraisal
-* Archives
-* Article
-* Banner
-* Biography
-* Birth Notice
-* Blog
-* Brief
-* Caption
-* Chronology
-* Column
-* Correction
-* Economic Analysis
-* Editorial
-* Editorial Cartoon
-* Editors' Note
-* First Chapter
-* Front Page
-* Glossary
-* Interactive Feature
-* Interactive Graphic
-* Interview
-* Letter
-* List
-* Marriage Announcement
-* Military Analysis
-* News
-* News Analysis
-* Newsletter
-* Obituary
-* Obituary (Obit)
-* Op-Ed
-* Paid Death Notice
-* Postscript
-* Premium
-* Question
-* Quote
-* Recipe
-* Review
-* Schedule
-* SectionFront
-* Series
-* Slideshow
-* Special Report
-* Statistics
-* Summary
-* Text
-* Video
-* Web Log, The Books API provides information about books on [The New York Times Best Sellers lists](https://www.nytimes.com/books/best-sellers/).
-  Some lists are weekly (e.g. hardcover fiction) and some lists are monthly (e.g. audio fiction). New lists are published on the web on Wednesday around 7pm eastern time. They show up in print eleven days later in [The New York Times Book Review](https://www.nytimes.com/section/books/review).
-
-The Book API provides two services:
-
-* an overview service to get all the Best Sellers lists for a given week, and
-* a list service to get one specific Best Sellers list for a given week or month depending on the list type.
-
-#### Example Calls
-
-- <https://api.nytimes.com/svc/books/v3/lists/overview.json?api-key=yourkey>
-- <https://api.nytimes.com/svc/books/v3/lists/overview.json?api-key=yourkey&published_date=2025-05-04>
-- <https://api.nytimes.com/svc/books/v3/lists/current/hardcover-fiction.json?api-key=yourkey>
-- <https://api.nytimes.com/svc/books/v3/lists/2025-05-04/hardcover-fiction.json?api-key=yourkey>
-
-### Recent API Changes
-
-**Note:** On May 15, 2025 the Books API changed.
-
-- The list and overview services return the full list of books, so pagination is no longer required.
-- The book reviews service was removed. Use the [Article Search API](https://developer.nytimes.com/docs/articlesearch-product/1/overview) instead.
-- The best-sellers history service was removed.
-- The list names service was removed.
-- The v2 version of the services were removed.
-- The services XML response format is deprecated.
-- If you find issues, please email <code@nytimes.com>.
-
-### Usage
-
-The overview service contains all the lists and all their books for a given week. So you only need to make 1 call to get a week's worth of data and 52 calls to get a year's worth data. You can use this to populate a local database on your side. Once populated you would only need to make 1 call a week to keep it up-to-date. New lists come out at around 7pm on Wednesday eastern time.
-
-If you call the overview endpoint with no date, it will return the current lists. In the response it has the publish date of the previous list, so you can use that to walk through all the weeks.
-
-- <https://api.nytimes.com/svc/books/v3/lists/overview.json?api-key=yourkey>
-- <https://api.nytimes.com/svc/books/v3/lists/overview.json?published_date=2025-05-18&api-key=yourkey>
-- <https://api.nytimes.com/svc/books/v3/lists/overview.json?published_date=2025-05-11&api-key=yourkey>
-
-Currently we are in the process of backfilling the data, so we only have lists from 2017 to today. We will be adding lists from June 2008 until today soon.
-
-### Best Sellers List Service
-
-The `lists/{date}/{name}.json` service returns the books on the Best Sellers list for the specified date and list name. The date is when the list was or will be in print, which is eleven days after it is first on the web.
-
-```
-/lists/2025-05-04/hardcover-fiction.json
-```
-
-Use "current" for {date} to get the latest list.
-
-```
-/lists/current/hardcover-fiction.json
-```
-
-#### Example Calls
-
-- <https://api.nytimes.com/svc/books/v3/lists/current/hardcover-fiction.json?api-key=yourkey>
-- <https://api.nytimes.com/svc/books/v3/lists/2025-05-04/hardcover-fiction.json?api-key=yourkey>
-
-### Best Sellers Overview Service
-
-The `lists/overview.json` service returns all the Best Sellers lists and their books for a specified print date. If no date is specified it returns the most current lists.
-
-```
-/lists/overview.json
-/lists/overview.json?published_date={date}
-```
-
-#### Example Calls
-
-- <https://api.nytimes.com/svc/books/v3/lists/overview.json?api-key=yourkey>
-- <https://api.nytimes.com/svc/books/v3/lists/overview.json?api-key=yourkey&published_date=2025-05-04>, Provides services for getting the most popular articles on NYTimes.com based on emails, shares, or views.
-
-Get most emailed articles for the last day:
-
-```
-/emailed/1.json
-```
-
-Get most shared articles on Facebook for the last day:
-
-```
-/shared/1/facebook.json
-```
-
-Get most viewed articles for the last seven days:
-
-```
-/viewed/7.json
-```
-
-### Example Calls
-
-```
-https://api.nytimes.com/svc/mostpopular/v2/emailed/7.json?api-key=yourkey
-```
-
-```
-https://api.nytimes.com/svc/mostpopular/v2/shared/1/facebook.json?api-key=yourkey
-```
-
-```
-https://api.nytimes.com/svc/mostpopular/v2/viewed/1.json?api-key=yourkey
-```, The RSS feeds return articles ranked on the section fronts (Arts, HomePage, World, ...).
-```
-
-/{section}.xml
-
-```
-No API key is required to call the RSS feeds.
-You can call the RSS feeds on rss.nytimes.com.
-
-## Example Calls
-```
-
-https://rss.nytimes.com/services/xml/rss/nyt/Arts.xml
-https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml
-
-```
-## Sections
-* [Africa](https://rss.nytimes.com/services/xml/rss/nyt/Africa.xml)
-* [Americas](https://rss.nytimes.com/services/xml/rss/nyt/Americas.xml)
-* [ArtandDesign](https://rss.nytimes.com/services/xml/rss/nyt/ArtandDesign.xml)
-* [Arts](https://rss.nytimes.com/services/xml/rss/nyt/Arts.xml)
-* [AsiaPacific](https://rss.nytimes.com/services/xml/rss/nyt/AsiaPacific.xml)
-* [Automobiles](https://rss.nytimes.com/services/xml/rss/nyt/Automobiles.xml)
-* [Baseball](https://rss.nytimes.com/services/xml/rss/nyt/Baseball.xml)
-* [Books/Review](https://rss.nytimes.com/services/xml/rss/nyt/Books/Review.xml)
-* [Business](https://rss.nytimes.com/services/xml/rss/nyt/Business.xml)
-* [Climate](https://rss.nytimes.com/services/xml/rss/nyt/Climate.xml)
-* [CollegeBasketball](https://rss.nytimes.com/services/xml/rss/nyt/CollegeBasketball.xml)
-* [CollegeFootball](https://rss.nytimes.com/services/xml/rss/nyt/CollegeFootball.xml)
-* [Dance](https://rss.nytimes.com/services/xml/rss/nyt/Dance.xml)
-* [Dealbook](https://rss.nytimes.com/services/xml/rss/nyt/Dealbook.xml)
-* [DiningandWine](https://rss.nytimes.com/services/xml/rss/nyt/DiningandWine.xml)
-* [Economy](https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml)
-* [Education](https://rss.nytimes.com/services/xml/rss/nyt/Education.xml)
-* [EnergyEnvironment](https://rss.nytimes.com/services/xml/rss/nyt/EnergyEnvironment.xml)
-* [Europe](https://rss.nytimes.com/services/xml/rss/nyt/Europe.xml)
-* [FashionandStyle](https://rss.nytimes.com/services/xml/rss/nyt/FashionandStyle.xml)
-* [Golf](https://rss.nytimes.com/services/xml/rss/nyt/Golf.xml)
-* [Health](https://rss.nytimes.com/services/xml/rss/nyt/Health.xml)
-* [Hockey](https://rss.nytimes.com/services/xml/rss/nyt/Hockey.xml)
-* [HomePage](https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml)
-* [Jobs](https://rss.nytimes.com/services/xml/rss/nyt/Jobs.xml)
-* [Lens](https://rss.nytimes.com/services/xml/rss/nyt/Lens.xml)
-* [MediaandAdvertising](https://rss.nytimes.com/services/xml/rss/nyt/MediaandAdvertising.xml)
-* [MiddleEast](https://rss.nytimes.com/services/xml/rss/nyt/MiddleEast.xml)
-* [MostEmailed](https://rss.nytimes.com/services/xml/rss/nyt/MostEmailed.xml)
-* [MostShared](https://rss.nytimes.com/services/xml/rss/nyt/MostShared.xml)
-* [MostViewed](https://rss.nytimes.com/services/xml/rss/nyt/MostViewed.xml)
-* [Movies](https://rss.nytimes.com/services/xml/rss/nyt/Movies.xml)
-* [Music](https://rss.nytimes.com/services/xml/rss/nyt/Music.xml)
-* [NYRegion](https://rss.nytimes.com/services/xml/rss/nyt/NYRegion.xml)
-* [Obituaries](https://rss.nytimes.com/services/xml/rss/nyt/Obituaries.xml)
-* [PersonalTech](https://rss.nytimes.com/services/xml/rss/nyt/PersonalTech.xml)
-* [Politics](https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml)
-* [ProBasketball](https://rss.nytimes.com/services/xml/rss/nyt/ProBasketball.xml)
-* [ProFootball](https://rss.nytimes.com/services/xml/rss/nyt/ProFootball.xml)
-* [RealEstate](https://rss.nytimes.com/services/xml/rss/nyt/RealEstate.xml)
-* [Science](https://rss.nytimes.com/services/xml/rss/nyt/Science.xml)
-* [SmallBusiness](https://rss.nytimes.com/services/xml/rss/nyt/SmallBusiness.xml)
-* [Soccer](https://rss.nytimes.com/services/xml/rss/nyt/Soccer.xml)
-* [Space](https://rss.nytimes.com/services/xml/rss/nyt/Space.xml)
-* [Sports](https://rss.nytimes.com/services/xml/rss/nyt/Sports.xml)
-* [SundayBookReview](https://rss.nytimes.com/services/xml/rss/nyt/SundayBookReview.xml)
-* [Sunday-Review](https://rss.nytimes.com/services/xml/rss/nyt/Sunday-Review.xml)
-* [Technology](https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml)
-* [Television](https://rss.nytimes.com/services/xml/rss/nyt/Television.xml)
-* [Tennis](https://rss.nytimes.com/services/xml/rss/nyt/Tennis.xml)
-* [Theater](https://rss.nytimes.com/services/xml/rss/nyt/Theater.xml)
-* [TMagazine](https://rss.nytimes.com/services/xml/rss/nyt/TMagazine.xml)
-* [Travel](https://rss.nytimes.com/services/xml/rss/nyt/Travel.xml)
-* [Upshot](https://rss.nytimes.com/services/xml/rss/nyt/Upshot.xml)
-* [US](https://rss.nytimes.com/services/xml/rss/nyt/US.xml)
-* [Weddings](https://rss.nytimes.com/services/xml/rss/nyt/Weddings.xml)
-* [Well](https://rss.nytimes.com/services/xml/rss/nyt/Well.xml)
-* [World](https://rss.nytimes.com/services/xml/rss/nyt/World.xml)
-* [YourMoney](https://rss.nytimes.com/services/xml/rss/nyt/YourMoney.xml), The Top Stories API returns an array of articles currently on the specified section (arts, business, ...).
-```
-
-/{section}.json
-
-```
-Use home to get articles currently on the homepage.
-```
-
-/home.json
-
-```
-The possible section value are: _arts, automobiles, books/review, business, fashion, food, health, home, insider, magazine, movies, nyregion, obituaries, opinion, politics, realestate, science, sports, sundayreview, technology, theater, t-magazine, travel, upshot, us, and world_.
-
-## Example Calls
-```
-
-https://api.nytimes.com/svc/topstories/v2/arts.json?api-key=yourkey
-https://api.nytimes.com/svc/topstories/v2/home.json?api-key=yourkey
-https://api.nytimes.com/svc/topstories/v2/science.json?api-key=yourkey
-https://api.nytimes.com/svc/topstories/v2/us.json?api-key=yourkey
-https://api.nytimes.com/svc/topstories/v2/world.json?api-key=yourkey
-
-```
-
-```
-
-## Building
-
-You must have Python `3.7+` installed on your system to install and run this SDK. This SDK package depends on other Python packages like pytest, etc. These dependencies are defined in the `requirements.txt` file that comes with the SDK. To resolve these dependencies, you can use the PIP Dependency manager. Install it by following steps at [https://pip.pypa.io/en/stable/installing/](https://pip.pypa.io/en/stable/installing/).
-
-Python and PIP executables should be defined in your PATH. Open command prompt and type `pip --version`. This should display the version of the PIP Dependency Manager installed if your installation was successful and the paths are properly defined.
-
-* Using command line, navigate to the directory containing the generated files (including `requirements.txt`) for the SDK.
-* Run the command `pip install -r requirements.txt`. This should install all the required dependencies.
-
-![Building SDK - Step 1](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&step=installDependencies)
+---
 
 ## Installation
 
-The following section explains how to use the nytimes library in a new project.
+Install the Python SDK from PyPI, with whichever package manager your project uses:
 
-### 1. Open Project in an IDE
-
-Open up a Python IDE like PyCharm. The basic workflow presented here is also applicable if you prefer using a different editor or IDE.
-
-![Open project in PyCharm - Step 1](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&step=pyCharm)
-
-Click on `Open` in PyCharm to browse to your generated SDK directory and then click `OK`.
-
-![Open project in PyCharm - Step 2](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&step=openProject0)
-
-The project files will be displayed in the side bar as follows:
-
-![Open project in PyCharm - Step 3](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&projectName=nytimes&step=openProject1)
-
-### 2. Add a new Test Project
-
-Create a new directory by right clicking on the solution name as shown below:
-
-![Add a new project in PyCharm - Step 1](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&projectName=nytimes&step=createDirectory)
-
-Name the directory as "test".
-
-![Add a new project in PyCharm - Step 2](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&step=nameDirectory)
-
-Add a python file to this project.
-
-![Add a new project in PyCharm - Step 3](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&projectName=nytimes&step=createFile)
-
-Name it "testSDK".
-
-![Add a new project in PyCharm - Step 4](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&projectName=nytimes&step=nameFile)
-
-In your python file you will be required to import the generated python library using the following code lines
-
-```python
-from nytimes.nytimes_client import NytimesClient
+```bash
+pip install the-new-york-times-apis
 ```
 
-![Add a new project in PyCharm - Step 5](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&projectName=nytimes&libraryName=nytimes.nytimes_client&className=NytimesClient&step=projectFiles)
-
-After this you can write code to instantiate an API client object, get a controller object and  make API calls. Sample code is given in the subsequent sections.
-
-### 3. Run the Test Project
-
-To run the file within your test project, right click on your Python file inside your Test project and click on `Run`
-
-![Run Test Project - Step 1](https://apidocs.io/illustration/python?workspaceFolder=Nytimes-Python&projectName=nytimes&libraryName=nytimes.nytimes_client&className=NytimesClient&step=runProject)
-
-## Initialize the API Client
-
-**_Note:_** Documentation for the client can be found [here.](doc/client.md)
-
-The following parameters are configurable for the API Client:
-
-| Parameter | Type | Description |
-|  --- | --- | --- |
-| environment | [`Environment`](README.md#environments) | The API environment. <br> **Default: `Environment.PRODUCTION`** |
-| http_client_instance | `Union[Session, HttpClientProvider]` | The Http Client passed from the sdk user for making requests |
-| override_http_client_configuration | `bool` | The value which determines to override properties of the passed Http Client from the sdk user |
-| http_call_back | `HttpCallBack` | The callback value that is invoked before and after an HTTP call is made to an endpoint |
-| timeout | `float` | The value to use for connection timeout. <br> **Default: 30** |
-| max_retries | `int` | The number of times to retry an endpoint call if it fails. <br> **Default: 0** |
-| backoff_factor | `float` | A backoff factor to apply between attempts after the second try. <br> **Default: 2** |
-| retry_statuses | `Array of int` | The http statuses on which retry is to be done. <br> **Default: [408, 413, 429, 500, 502, 503, 504, 521, 522, 524, 408, 413, 429, 500, 502, 503, 504, 521, 522, 524]** |
-| retry_methods | `Array of string` | The http methods on which retry is to be done. <br> **Default: ["GET", "PUT", "GET", "PUT"]** |
-| proxy_settings | [`ProxySettings`](doc/proxy-settings.md) | Optional proxy configuration to route HTTP requests through a proxy server. |
-| logging_configuration | [`LoggingConfiguration`](doc/logging-configuration.md) | The SDK logging configuration for API calls |
-| custom_query_authentication_credentials | [`CustomQueryAuthenticationCredentials`](doc/auth/custom-query-parameter.md) | The credential object for Custom Query Parameter |
-
-The API client can be initialized as follows:
-
-### Code-Based Client Initialization
-
-```python
-import logging
-
-from nytimes.configuration import Environment
-from nytimes.http.auth.custom_query_authentication import CustomQueryAuthenticationCredentials
-from nytimes.logging.configuration.api_logging_configuration import LoggingConfiguration
-from nytimes.logging.configuration.api_logging_configuration import RequestLoggingConfiguration
-from nytimes.logging.configuration.api_logging_configuration import ResponseLoggingConfiguration
-from nytimes.nytimes_client import NytimesClient
-
-client = NytimesClient(
-    custom_query_authentication_credentials=CustomQueryAuthenticationCredentials(
-        api_key='api-key'
-    ),
-    environment=Environment.PRODUCTION,
-    logging_configuration=LoggingConfiguration(
-        log_level=logging.INFO,
-        request_logging_config=RequestLoggingConfiguration(
-            log_body=True
-        ),
-        response_logging_config=ResponseLoggingConfiguration(
-            log_headers=True
-        )
-    )
-)
+```bash
+uv add the-new-york-times-apis
 ```
 
-### Environment-Based Client Initialization
-
-```python
-from nytimes.nytimes_client import NytimesClient
-
-# Specify the path to your .env file if it’s located outside the project’s root directory.
-client = NytimesClient.from_environment(dotenv_path='/path/to/.env')
+```bash
+poetry add the-new-york-times-apis
 ```
 
-See the [Environment-Based Client Initialization](doc/environment-based-client-initialization.md) section for details.
+---
 
-## Environments
+## Quick Start
 
-The SDK can be configured to use a different environment for making API calls. Available environments are:
+### Synchronous client
 
-### Fields
+Construct `TheNewYorkTimesApisClient` with keyword arguments, and call `close()` when you are done. Every argument is optional; the full list is in the [SDK map](sdk-map.md).
 
-| Name | Description |
-|  --- | --- |
-| PRODUCTION | **Default** |
+```python
+from the_new_york_times_apis import TheNewYorkTimesApisClient
 
-## Authorization
+client = TheNewYorkTimesApisClient(apikey="YOUR_API_KEY")
 
-This API uses the following authentication schemes.
+# TODO: call endpoints here -- see api-reference.md
 
-* [`apikey (Custom Query Parameter)`](doc/auth/custom-query-parameter.md)
+client.close()
+```
 
-## List of APIs
+Alternatively, scope it -- `with TheNewYorkTimesApisClient(...) as client:` closes the pool on exit; see [Best Practices](#best-practices).
 
-* [API](doc/controllers/api.md)
-* [Most Popular](doc/controllers/most-popular.md)
-* [Archive](doc/controllers/archive.md)
-* [Search](doc/controllers/search.md)
-* [RSS](doc/controllers/rss.md)
-* [Stories](doc/controllers/stories.md)
+`Client` is exported as an alias of `TheNewYorkTimesApisClient`, so `from the_new_york_times_apis import Client` also works.
 
-## SDK Infrastructure
+The SDK accepts every model-typed input in two interchangeable spellings, both type-checked: the typed model, or a plain dict with the same keys -- the `OrDict` and `Model | ModelDict` unions in the [SDK map](sdk-map.md). Pick whichever suits the call site: the dict form needs no import, while the model form adds a keyword-checked constructor and editor completion.
 
-### Configuration
+### Asynchronous client
 
-* [ProxySettings](doc/proxy-settings.md)
-* [Environment-Based Client Initialization](doc/environment-based-client-initialization.md)
-* [AbstractLogger](doc/abstract-logger.md)
-* [LoggingConfiguration](doc/logging-configuration.md)
-* [RequestLoggingConfiguration](doc/request-logging-configuration.md)
-* [ResponseLoggingConfiguration](doc/response-logging-configuration.md)
+`AsyncTheNewYorkTimesApisClient` mirrors `TheNewYorkTimesApisClient` with **identical method names**, and every endpoint method is a coroutine. It takes the same arguments, with some differences -- for example, the transport argument is `custom_async_http_client`.
 
-### HTTP
+```python
+from asyncio import run
 
-* [HttpResponse](doc/http-response.md)
-* [HttpRequest](doc/http-request.md)
+from the_new_york_times_apis import AsyncTheNewYorkTimesApisClient
 
-### Utilities
 
-* [ApiResponse](doc/api-response.md)
-* [ApiHelper](doc/api-helper.md)
-* [HttpDateTime](doc/http-date-time.md)
-* [RFC3339DateTime](doc/rfc3339-date-time.md)
-* [UnixDateTime](doc/unix-date-time.md)
+async def main() -> None:
+    client = AsyncTheNewYorkTimesApisClient(apikey="YOUR_API_KEY")
+    # TODO: call endpoints here, awaiting each -- see api-reference.md
+    await client.aclose()
 
+
+run(main())
+```
+
+Alternatively, scope it -- `async with AsyncTheNewYorkTimesApisClient(...) as client:` closes the pool on exit. Only the async spelling is `aclose`, matching httpx; see [Best Practices](#best-practices).
+
+`AsyncClient` is the exported alias. Each client accepts **only** its own transport argument; passing the other's is a `TypeError` at runtime and an error under mypy.
+
+---
+
+## Usage
+
+Two generated references cover the SDK; each answers a different question:
+
+| Reference | For |
+| --- | --- |
+| **[API Reference](api-reference.md)** | Usage guidance for a single **parsed** operation: `client.<group>.<operation>(...)` returns the typed payload and raises `ApiError` on any non-2xx, with `.error` the typed error body, or `RawError` for a status the operation does not document. |
+| **[Raw API Reference](raw-api-reference.md)** | The same for the **raw** variant: `client.<group>.with_raw_response.<operation>(...)` returns `ApiResult[T, E]` and never raises for an API error. |
+
+Both API references carry every one of the 10 operations, with a sync and an async sample and a parameter table each.
+
+## SDK map
+
+This SDK ships a generated **SDK map** -- [`sdk-map.md`](sdk-map.md) -- a deterministic, lookup-oriented table of contents of the SDK's Python surface, generated by APIMatic alongside this SDK.
+
+Consult the map before scanning or grepping the source: it answers call-level contract questions by lookup, and for anything it does not carry -- model shapes, enum values, an endpoint's route or behavioural prose -- it names the one source file to read. How to read the map itself, including the SDK-wide defaults its rows rely on, is stated at the top of [`sdk-map.md`](sdk-map.md).
+
+## Best Practices
+
+> [!TIP]
+> Use a **single `TheNewYorkTimesApisClient` instance** for the lifetime of your application and reuse it across
+> all requests. Each instance owns its own connection pool, so an instance per request forfeits
+> connection reuse and leaks pools that are never closed.
+
+Match the disposal to the client's lifetime: an application-lifetime client is closed once at shutdown with `close()` / `aclose()`; where the lifetime fits a block, `with TheNewYorkTimesApisClient() as client:` / `async with AsyncTheNewYorkTimesApisClient() as client:` releases it automatically. Both are idempotent, but a closed client is not reusable: the next call raises. The client closes **whatever transport it holds**, including one you supplied via `custom_http_client` / `custom_async_http_client`; if you intend to reuse your own transport across clients, don't hand its lifetime to a `with` block.
+
+## License
+
+This SDK is distributed under the [MIT License][license-url].
+
+---
+
+## Support
+
+Refer to the [API reference](api-reference.md) for detailed information on available operations with code samples.
+
+For further assistance, please contact support at code@nytimes.com.
+
+---
+
+[license-url]: LICENSE
+[license-badge]: https://img.shields.io/badge/License-MIT-blue.svg
+[apimatic-url]: https://www.apimatic.io
+[apimatic-badge]: https://www.apimatic.io/hubfs/Built-with-APIMatic-badge.svg
+[python-url]: https://www.python.org/downloads/
+[python-badge]: https://img.shields.io/badge/python-3.10%2B-blue.svg
