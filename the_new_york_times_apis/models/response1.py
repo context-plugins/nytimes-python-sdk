@@ -13,5 +13,5 @@ class Response1(SdkBaseModel):
 
 
 class Response1Dict(TypedDict):
-    meta: NotRequired[Meta1 | Meta1Dict]
-    docs: NotRequired[list[Article | ArticleDict]]
+    meta: NotRequired[Meta1Dict]
+    docs: NotRequired[list[ArticleDict]]

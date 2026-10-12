@@ -22,8 +22,8 @@ class Channel(SdkBaseModel):
 class ChannelDict(TypedDict):
     copyright: NotRequired[str]
     description: NotRequired[str]
-    image: NotRequired[Image1 | Image1Dict]
-    item: NotRequired[list[Item | ItemDict]]
+    image: NotRequired[Image1Dict]
+    item: NotRequired[list[ItemDict]]
     language: NotRequired[str]
     last_build_date: NotRequired[str]
     link: NotRequired[str]

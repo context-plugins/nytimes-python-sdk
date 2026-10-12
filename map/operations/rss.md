@@ -9,8 +9,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 ### client.rss.get_section_feed
 
 - **Route**: `GET /services/xml/rss/nyt/{section}.xml`
-- **Signature**: `def get_section_feed(section: Section1OrStr, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `section`
+- **Signature**: `def get_section_feed(*, section: Section1OrStr = Section1.HOME_PAGE, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `section` — path
 - **Returns (parsed)**: `None`
 - **Returns (raw)**: `ApiResult[None, RawError]`

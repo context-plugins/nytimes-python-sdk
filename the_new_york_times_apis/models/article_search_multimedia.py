@@ -16,5 +16,5 @@ class ArticleSearchMultimedia(SdkBaseModel):
 class ArticleSearchMultimediaDict(TypedDict):
     caption: NotRequired[str]
     credit: NotRequired[str]
-    default: NotRequired[Image | ImageDict]
-    thumbnail: NotRequired[Image | ImageDict]
+    default: NotRequired[ImageDict]
+    thumbnail: NotRequired[ImageDict]

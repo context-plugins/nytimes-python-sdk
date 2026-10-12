@@ -17,4 +17,4 @@ class OverviewResponseDict(TypedDict):
     status: NotRequired[str]
     copyright: NotRequired[str]
     num_results: NotRequired[int]
-    results: NotRequired[Results1 | Results1Dict]
+    results: NotRequired[Results1Dict]

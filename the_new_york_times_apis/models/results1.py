@@ -23,4 +23,4 @@ class Results1Dict(TypedDict):
     published_date: NotRequired[str]
     previous_published_date: NotRequired[str]
     next_published_date: NotRequired[str]
-    lists: NotRequired[list[List | ListDict]]
+    lists: NotRequired[list[ListDict]]

@@ -1,9 +1,19 @@
 from __future__ import annotations
 
 from ..auth import AsyncAuthSchemes, AuthSchemes
-from ..core import ApiResult, AsyncRawClient, RawClient, RequestOptionsOrDict, SecuredRawResponse, json_decoder, param
+from ..core import (
+    ApiResult,
+    AsyncRawClient,
+    RawClient,
+    RequestOptionsOrDict,
+    SecuredRawResponse,
+    async_json_decoder,
+    json_decoder,
+    param,
+    unwrap,
+)
 from ..errors.search_articles_error import SearchArticlesErrorBody, search_articles_error_mapper
-from ..models.enums.sort import SortOrStr
+from ..models.enums.sort import Sort, SortOrStr
 from ..models.svc_search_v2_articlesearch_json_response import SvcSearchV2ArticlesearchJsonResponse
 from ..server.server import Server
 
@@ -20,7 +30,7 @@ class Search:
         fq: str | None = None,
         page: int | None = None,
         q: str | None = None,
-        sort: SortOrStr | None = None,
+        sort: SortOrStr | None = Sort.BEST,
         request_options: RequestOptionsOrDict | None = None,
     ) -> SvcSearchV2ArticlesearchJsonResponse:
         """Search for NYT articles by keywords and filters.
@@ -32,7 +42,8 @@ class Search:
             page: Page number (0, 1, ...)
             q: Query
             sort: Sort order
-            request_options: Per-call overrides for this one request, such as a timeout or extra headers.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
 
         Returns:
             An array of articles.
@@ -40,9 +51,17 @@ class Search:
         Raises:
             ApiError: Bad request. Check your query parameters. Unauthorized request. Make sure api-key is set. Too many
                 requests. You reached your per minute or per day rate limit. ``error`` is ``RawError``."""
-        return self._with_raw_response.search_articles(
-            begin_date=begin_date, end_date=end_date, fq=fq, page=page, q=q, sort=sort, request_options=request_options
-        ).unwrap()
+        return unwrap(
+            self._with_raw_response.search_articles(
+                begin_date=begin_date,
+                end_date=end_date,
+                fq=fq,
+                page=page,
+                q=q,
+                sort=sort,
+                request_options=request_options,
+            ),
+        )
 
     @property
     def with_raw_response(self) -> SearchWithRawResponse:
@@ -61,7 +80,7 @@ class AsyncSearch:
         fq: str | None = None,
         page: int | None = None,
         q: str | None = None,
-        sort: SortOrStr | None = None,
+        sort: SortOrStr | None = Sort.BEST,
         request_options: RequestOptionsOrDict | None = None,
     ) -> SvcSearchV2ArticlesearchJsonResponse:
         """Search for NYT articles by keywords and filters.
@@ -73,7 +92,8 @@ class AsyncSearch:
             page: Page number (0, 1, ...)
             q: Query
             sort: Sort order
-            request_options: Per-call overrides for this one request, such as a timeout or extra headers.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
 
         Returns:
             An array of articles.
@@ -81,7 +101,7 @@ class AsyncSearch:
         Raises:
             ApiError: Bad request. Check your query parameters. Unauthorized request. Make sure api-key is set. Too many
                 requests. You reached your per minute or per day rate limit. ``error`` is ``RawError``."""
-        return (
+        return unwrap(
             await self._with_raw_response.search_articles(
                 begin_date=begin_date,
                 end_date=end_date,
@@ -90,8 +110,8 @@ class AsyncSearch:
                 q=q,
                 sort=sort,
                 request_options=request_options,
-            )
-        ).unwrap()
+            ),
+        )
 
     @property
     def with_raw_response(self) -> AsyncSearchWithRawResponse:
@@ -107,7 +127,7 @@ class SearchWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
         fq: str | None = None,
         page: int | None = None,
         q: str | None = None,
-        sort: SortOrStr | None = None,
+        sort: SortOrStr | None = Sort.BEST,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[SvcSearchV2ArticlesearchJsonResponse, SearchArticlesErrorBody]:
         """Search for NYT articles by keywords and filters.
@@ -119,7 +139,8 @@ class SearchWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes]):
             page: Page number (0, 1, ...)
             q: Query
             sort: Sort order
-            request_options: Per-call overrides for this one request, such as a timeout or extra headers.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
 
         Returns:
             An ``ApiResult`` holding the deserialized response or the error body."""
@@ -150,7 +171,7 @@ class AsyncSearchWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
         fq: str | None = None,
         page: int | None = None,
         q: str | None = None,
-        sort: SortOrStr | None = None,
+        sort: SortOrStr | None = Sort.BEST,
         request_options: RequestOptionsOrDict | None = None,
     ) -> ApiResult[SvcSearchV2ArticlesearchJsonResponse, SearchArticlesErrorBody]:
         """Search for NYT articles by keywords and filters.
@@ -162,7 +183,8 @@ class AsyncSearchWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
             page: Page number (0, 1, ...)
             q: Query
             sort: Sort order
-            request_options: Per-call overrides for this one request, such as a timeout or extra headers.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
 
         Returns:
             An ``ApiResult`` holding the deserialized response or the error body."""
@@ -178,7 +200,7 @@ class AsyncSearchWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asyn
                 param[SortOrStr | None]("sort", sort),
             ],
             auth_scheme=self._auth.apikey,
-            decoder=json_decoder[SvcSearchV2ArticlesearchJsonResponse],
+            decoder=async_json_decoder[SvcSearchV2ArticlesearchJsonResponse],
             error_mapper=search_articles_error_mapper,
             request_options=request_options,
         )

@@ -11,4 +11,4 @@ class ServicesXmlRssNytXmlResponse(SdkBaseModel):
 
 
 class ServicesXmlRssNytXmlResponseDict(TypedDict):
-    channel: NotRequired[Channel | ChannelDict]
+    channel: NotRequired[ChannelDict]

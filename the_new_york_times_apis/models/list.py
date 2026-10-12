@@ -23,4 +23,4 @@ class ListDict(TypedDict):
     display_name: NotRequired[str]
     list_name_encoded: NotRequired[str]
     updated: NotRequired[str]
-    books: NotRequired[list[Book | BookDict]]
+    books: NotRequired[list[BookDict]]

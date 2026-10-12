@@ -10,8 +10,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /svc/topstories/v2/{section}.json`
 - **Auth**: `apikey`
-- **Signature**: `def get_top_stories_by_section(section: SectionOrStr, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `section`
+- **Signature**: `def get_top_stories_by_section(*, section: SectionOrStr = Section.HOME, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `section` — path
 - **Returns (parsed)**: `SvcTopstoriesV2JsonResponse`
 - **Returns (raw)**: `ApiResult[SvcTopstoriesV2JsonResponse, GetTopStoriesBySectionErrorBody]`

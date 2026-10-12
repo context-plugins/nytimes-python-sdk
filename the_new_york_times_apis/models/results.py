@@ -37,5 +37,5 @@ class ResultsDict(TypedDict):
     updated: NotRequired[str]
     previous_published_date: NotRequired[str]
     next_published_date: NotRequired[str]
-    books: NotRequired[list[Book | BookDict]]
-    corrections: NotRequired[list[Correction | CorrectionDict]]
+    books: NotRequired[list[BookDict]]
+    corrections: NotRequired[list[CorrectionDict]]

@@ -33,7 +33,7 @@ Pass in year and month and get back JSON with all articles for that month. The r
 
 ```python
 try:
-    response = client.archive.get_archive_by_month()
+    response = client.archive.get_archive_by_month(year=1, month=1)
     # TODO: Handle 'response' of type SvcArchiveV1JsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetArchiveByMonthErrorBody
@@ -43,7 +43,7 @@ except ApiError as e:
 
 ```python
 try:
-    response = await async_client.archive.get_archive_by_month()
+    response = await async_client.archive.get_archive_by_month(year=1, month=1)
     # TODO: Handle 'response' of type SvcArchiveV1JsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetArchiveByMonthErrorBody
@@ -61,7 +61,7 @@ except ApiError as e:
 | --- | --- | --- |
 | <code>year</code> | <code>int</code> | Year: 1851-2019<br>**Default**: <code>2018</code> |
 | <code>month</code> | <code>int</code> | Year: 1-12<br>**Default**: <code>9</code> |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>
@@ -120,7 +120,7 @@ Get Best Sellers data for a given list name and date.
 
 ```python
 try:
-    response = client.books.get_lists_date_list_json(date, list_)
+    response = client.books.get_lists_date_list_json("some example string", "some example string")
     # TODO: Handle 'response' of type ListResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetListsDateListJsonErrorBody
@@ -130,7 +130,7 @@ except ApiError as e:
 
 ```python
 try:
-    response = await async_client.books.get_lists_date_list_json(date, list_)
+    response = await async_client.books.get_lists_date_list_json("some example string", "some example string")
     # TODO: Handle 'response' of type ListResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetListsDateListJsonErrorBody
@@ -148,7 +148,7 @@ except ApiError as e:
 | --- | --- | --- |
 | <code>date</code> | <code>str</code> | YYYY-MM-DD or "current"<br><br>The date the best sellers list was in the print [The New York Times Book Review](https://www.nytimes.com/section/books/review).  Use "current" to get latest list. |
 | <code>list_</code> | <code>str</code> | Name of the Best Sellers List (e.g. hardcover-fiction). You can get the  list of names from the /lists/overview.json service. |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>
@@ -229,7 +229,7 @@ except ApiError as e:
 | Name | Type | Description |
 | --- | --- | --- |
 | <code>published_date</code> | <code>str \| None</code> | YYYY-MM-DD<br><br>The overview published date when the list was or will be in the print [The New York Times Book Review](https://www.nytimes.com/section/books/review).<br>**Default**: <code>None</code> |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>
@@ -263,7 +263,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [MostPopular](the_new_york_times_apis/apis/most_popular.py)
 
 <details>
-<summary><code>def get_most_emailed_articles(period: PeriodOrInt, *, request_options: RequestOptionsOrDict | None = None) -> SvcMostpopularV2EmailedJsonResponse</code></summary>
+<summary><code>def get_most_emailed_articles(*, period: PeriodOrInt = Period.VALUE_1, request_options: RequestOptionsOrDict | None = None) -> SvcMostpopularV2EmailedJsonResponse</code></summary>
 
 <dl>
 <dd>
@@ -287,7 +287,7 @@ Returns an array of the most emailed articles on NYTimes.com for specified perio
 
 ```python
 try:
-    response = client.most_popular.get_most_emailed_articles(period)
+    response = client.most_popular.get_most_emailed_articles(period=Period.VALUE_1)
     # TODO: Handle 'response' of type SvcMostpopularV2EmailedJsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetMostEmailedArticlesErrorBody
@@ -297,7 +297,7 @@ except ApiError as e:
 
 ```python
 try:
-    response = await async_client.most_popular.get_most_emailed_articles(period)
+    response = await async_client.most_popular.get_most_emailed_articles(period=Period.VALUE_1)
     # TODO: Handle 'response' of type SvcMostpopularV2EmailedJsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetMostEmailedArticlesErrorBody
@@ -313,8 +313,8 @@ except ApiError as e:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>period</code> | <code>[PeriodOrInt](the_new_york_times_apis/models/enums/period.py)</code> | Time period: 1, 7, or 30 days. |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>period</code> | <code>[PeriodOrInt](the_new_york_times_apis/models/enums/period.py)</code> | Time period: 1, 7, or 30 days.<br>**Default**: <code>Period.VALUE_1</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>
@@ -344,7 +344,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_most_shared_articles(period: PeriodOrInt, *, request_options: RequestOptionsOrDict | None = None) -> SvcMostpopularV2SharedJsonResponse</code></summary>
+<summary><code>def get_most_shared_articles(*, period: PeriodOrInt = Period.VALUE_1, request_options: RequestOptionsOrDict | None = None) -> SvcMostpopularV2SharedJsonResponse</code></summary>
 
 <dl>
 <dd>
@@ -368,7 +368,7 @@ Returns an array of the most shared articles on NYTimes.com for specified period
 
 ```python
 try:
-    response = client.most_popular.get_most_shared_articles(period)
+    response = client.most_popular.get_most_shared_articles(period=Period.VALUE_1)
     # TODO: Handle 'response' of type SvcMostpopularV2SharedJsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetMostSharedArticlesErrorBody
@@ -378,7 +378,7 @@ except ApiError as e:
 
 ```python
 try:
-    response = await async_client.most_popular.get_most_shared_articles(period)
+    response = await async_client.most_popular.get_most_shared_articles(period=Period.VALUE_1)
     # TODO: Handle 'response' of type SvcMostpopularV2SharedJsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetMostSharedArticlesErrorBody
@@ -394,8 +394,8 @@ except ApiError as e:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>period</code> | <code>[PeriodOrInt](the_new_york_times_apis/models/enums/period.py)</code> | Time period: 1, 7, or 30 days. |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>period</code> | <code>[PeriodOrInt](the_new_york_times_apis/models/enums/period.py)</code> | Time period: 1, 7, or 30 days.<br>**Default**: <code>Period.VALUE_1</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>
@@ -425,7 +425,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_most_shared_articles_by_type(period: PeriodOrInt, share_type: ShareTypeOrStr, *, request_options: RequestOptionsOrDict | None = None) -> SvcMostpopularV2SharedJsonResponse</code></summary>
+<summary><code>def get_most_shared_articles_by_type(*, period: PeriodOrInt = Period.VALUE_1, share_type: ShareTypeOrStr = ShareType.FACEBOOK, request_options: RequestOptionsOrDict | None = None) -> SvcMostpopularV2SharedJsonResponse</code></summary>
 
 <dl>
 <dd>
@@ -449,7 +449,9 @@ Returns an array of the most shared articles by share type on NYTimes.com for sp
 
 ```python
 try:
-    response = client.most_popular.get_most_shared_articles_by_type(period, share_type)
+    response = client.most_popular.get_most_shared_articles_by_type(
+        period=Period.VALUE_1, share_type=ShareType.FACEBOOK
+    )
     # TODO: Handle 'response' of type SvcMostpopularV2SharedJsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetMostSharedArticlesByTypeErrorBody
@@ -459,7 +461,9 @@ except ApiError as e:
 
 ```python
 try:
-    response = await async_client.most_popular.get_most_shared_articles_by_type(period, share_type)
+    response = await async_client.most_popular.get_most_shared_articles_by_type(
+        period=Period.VALUE_1, share_type=ShareType.FACEBOOK
+    )
     # TODO: Handle 'response' of type SvcMostpopularV2SharedJsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetMostSharedArticlesByTypeErrorBody
@@ -475,9 +479,9 @@ except ApiError as e:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>period</code> | <code>[PeriodOrInt](the_new_york_times_apis/models/enums/period.py)</code> | Time period: 1, 7, or 30 days. |
-| <code>share_type</code> | <code>[ShareTypeOrStr](the_new_york_times_apis/models/enums/share_type.py)</code> | Share type: facebook. |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>period</code> | <code>[PeriodOrInt](the_new_york_times_apis/models/enums/period.py)</code> | Time period: 1, 7, or 30 days.<br>**Default**: <code>Period.VALUE_1</code> |
+| <code>share_type</code> | <code>[ShareTypeOrStr](the_new_york_times_apis/models/enums/share_type.py)</code> | Share type: facebook.<br>**Default**: <code>ShareType.FACEBOOK</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>
@@ -507,7 +511,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 </details>
 
 <details>
-<summary><code>def get_most_viewed_articles(period: PeriodOrInt, *, request_options: RequestOptionsOrDict | None = None) -> SvcMostpopularV2ViewedJsonResponse</code></summary>
+<summary><code>def get_most_viewed_articles(*, period: PeriodOrInt = Period.VALUE_1, request_options: RequestOptionsOrDict | None = None) -> SvcMostpopularV2ViewedJsonResponse</code></summary>
 
 <dl>
 <dd>
@@ -531,7 +535,7 @@ Returns an array of the most viewed articles on NYTimes.com for specified period
 
 ```python
 try:
-    response = client.most_popular.get_most_viewed_articles(period)
+    response = client.most_popular.get_most_viewed_articles(period=Period.VALUE_1)
     # TODO: Handle 'response' of type SvcMostpopularV2ViewedJsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetMostViewedArticlesErrorBody
@@ -541,7 +545,7 @@ except ApiError as e:
 
 ```python
 try:
-    response = await async_client.most_popular.get_most_viewed_articles(period)
+    response = await async_client.most_popular.get_most_viewed_articles(period=Period.VALUE_1)
     # TODO: Handle 'response' of type SvcMostpopularV2ViewedJsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetMostViewedArticlesErrorBody
@@ -557,8 +561,8 @@ except ApiError as e:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>period</code> | <code>[PeriodOrInt](the_new_york_times_apis/models/enums/period.py)</code> | Time period: 1, 7, or 30 days. |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>period</code> | <code>[PeriodOrInt](the_new_york_times_apis/models/enums/period.py)</code> | Time period: 1, 7, or 30 days.<br>**Default**: <code>Period.VALUE_1</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>
@@ -592,7 +596,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [Rss](the_new_york_times_apis/apis/rss.py)
 
 <details>
-<summary><code>def get_section_feed(section: Section1OrStr, *, request_options: RequestOptionsOrDict | None = None) -> None</code></summary>
+<summary><code>def get_section_feed(*, section: Section1OrStr = Section1.HOME_PAGE, request_options: RequestOptionsOrDict | None = None) -> None</code></summary>
 
 <dl>
 <dd>
@@ -616,7 +620,7 @@ Given section name, return lists of articles ranked on the section front.
 
 ```python
 try:
-    client.rss.get_section_feed(section)
+    client.rss.get_section_feed(section=Section1.AFRICA)
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type RawError
 ```
@@ -625,7 +629,7 @@ except ApiError as e:
 
 ```python
 try:
-    await async_client.rss.get_section_feed(section)
+    await async_client.rss.get_section_feed(section=Section1.AFRICA)
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type RawError
 ```
@@ -640,8 +644,8 @@ except ApiError as e:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>section</code> | <code>[Section1OrStr](the_new_york_times_apis/models/enums/section1.py)</code> | Section name (Arts, Africa, Americas, ...). |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>section</code> | <code>[Section1OrStr](the_new_york_times_apis/models/enums/section1.py)</code> | Section name (Arts, Africa, Americas, ...).<br>**Default**: <code>Section1.HOME_PAGE</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>
@@ -668,7 +672,7 @@ except ApiError as e:
 > Source: [Search](the_new_york_times_apis/apis/search.py)
 
 <details>
-<summary><code>def search_articles(*, begin_date: str | None = None, end_date: str | None = None, fq: str | None = None, page: int | None = None, q: str | None = None, sort: SortOrStr | None = None, request_options: RequestOptionsOrDict | None = None) -> SvcSearchV2ArticlesearchJsonResponse</code></summary>
+<summary><code>def search_articles(*, begin_date: str | None = None, end_date: str | None = None, fq: str | None = None, page: int | None = None, q: str | None = None, sort: SortOrStr | None = Sort.BEST, request_options: RequestOptionsOrDict | None = None) -> SvcSearchV2ArticlesearchJsonResponse</code></summary>
 
 <dl>
 <dd>
@@ -723,8 +727,8 @@ except ApiError as e:
 | <code>fq</code> | <code>str \| None</code> | Filter query<br>**Default**: <code>None</code> |
 | <code>page</code> | <code>int \| None</code> | Page number (0, 1, ...)<br>**Default**: <code>None</code> |
 | <code>q</code> | <code>str \| None</code> | Query<br>**Default**: <code>None</code> |
-| <code>sort</code> | <code>[SortOrStr](the_new_york_times_apis/models/enums/sort.py) \| None</code> | Sort order<br>**Default**: <code>None</code> |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>sort</code> | <code>[SortOrStr](the_new_york_times_apis/models/enums/sort.py) \| None</code> | Sort order<br>**Default**: <code>Sort.BEST</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>
@@ -758,7 +762,7 @@ Mapped in first-match order -- an earlier row wins over a later range that also 
 > Source: [Stories](the_new_york_times_apis/apis/stories.py)
 
 <details>
-<summary><code>def get_top_stories_by_section(section: SectionOrStr, *, request_options: RequestOptionsOrDict | None = None) -> SvcTopstoriesV2JsonResponse</code></summary>
+<summary><code>def get_top_stories_by_section(*, section: SectionOrStr = Section.HOME, request_options: RequestOptionsOrDict | None = None) -> SvcTopstoriesV2JsonResponse</code></summary>
 
 <dl>
 <dd>
@@ -782,7 +786,7 @@ The Top Stories API returns an array of articles currently on the specified sect
 
 ```python
 try:
-    response = client.stories.get_top_stories_by_section(section)
+    response = client.stories.get_top_stories_by_section(section=Section.ARTS)
     # TODO: Handle 'response' of type SvcTopstoriesV2JsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetTopStoriesBySectionErrorBody
@@ -792,7 +796,7 @@ except ApiError as e:
 
 ```python
 try:
-    response = await async_client.stories.get_top_stories_by_section(section)
+    response = await async_client.stories.get_top_stories_by_section(section=Section.ARTS)
     # TODO: Handle 'response' of type SvcTopstoriesV2JsonResponse
 except ApiError as e:
     ...  # TODO: Handle 'e.error' of type GetTopStoriesBySectionErrorBody
@@ -808,8 +812,8 @@ except ApiError as e:
 
 | Name | Type | Description |
 | --- | --- | --- |
-| <code>section</code> | <code>[SectionOrStr](the_new_york_times_apis/models/enums/section.py)</code> | The section the story appears in. |
-| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout or extra headers. |
+| <code>section</code> | <code>[SectionOrStr](the_new_york_times_apis/models/enums/section.py)</code> | The section the story appears in.<br>**Default**: <code>Section.HOME</code> |
+| <code>request_options</code> | <code>[RequestOptionsOrDict](the_new_york_times_apis/core/request_options.py) \| None</code> | Per-call overrides for this one request, such as a timeout, extra headers, or its retry count and statuses. |
 
 </dd>
 </dl>

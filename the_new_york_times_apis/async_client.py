@@ -18,8 +18,9 @@ from .core import (
     PYTHON_RUNTIME,
     ApiKeyQueryScheme,
     AsyncHttpClient,
-    AsyncHttpxClient,
+    AsyncHttpx2Client,
     AsyncRawClient,
+    RetryOptionsOrDict,
     no_auth,
     param,
 )
@@ -31,14 +32,16 @@ class AsyncTheNewYorkTimesApisClient(BaseTheNewYorkTimesApisClient[AsyncRawClien
         *,
         base_url: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
+        retry_options: int | RetryOptionsOrDict | None = None,
         custom_async_http_client: AsyncHttpClient | None = None,
         apikey: str | None = None,
     ) -> None:
-        super().__init__(base_url=base_url, timeout=timeout)
+        super().__init__(base_url=base_url, timeout=timeout, retry_options=retry_options)
         self._raw_client = AsyncRawClient(
             http_client=(
-                custom_async_http_client if custom_async_http_client is not None else AsyncHttpxClient(timeout=timeout)
+                custom_async_http_client if custom_async_http_client is not None else AsyncHttpx2Client(timeout=timeout)
             ),
+            retry_options=self._retry_options,
             global_headers=[
                 param[str]("User-Agent", "TheNewYorkTimesApisClient/1.0.0 Python"),
                 param[str]("X-APIMatic-Lang", "Python"),

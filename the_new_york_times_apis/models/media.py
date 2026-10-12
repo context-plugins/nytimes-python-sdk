@@ -34,4 +34,4 @@ class MediaDict(TypedDict):
     caption: NotRequired[str]
     copyright: NotRequired[str]
     approved_for_syndication: NotRequired[int]
-    media_metadata: NotRequired[list[MediaMetadata | MediaMetadataDict]]
+    media_metadata: NotRequired[list[MediaMetadataDict]]

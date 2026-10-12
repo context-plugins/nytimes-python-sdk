@@ -46,5 +46,5 @@ class Article1Dict(TypedDict):
     org_facet: NotRequired[list[str]]
     per_facet: NotRequired[list[str]]
     geo_facet: NotRequired[list[str]]
-    multimedia: NotRequired[list[Multimedia1 | Multimedia1Dict]]
+    multimedia: NotRequired[list[Multimedia1Dict]]
     short_url: NotRequired[str]

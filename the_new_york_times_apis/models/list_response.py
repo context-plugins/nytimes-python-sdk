@@ -17,4 +17,4 @@ class ListResponseDict(TypedDict):
     status: NotRequired[str]
     copyright: NotRequired[str]
     num_results: NotRequired[int]
-    results: NotRequired[Results | ResultsDict]
+    results: NotRequired[ResultsDict]

@@ -21,4 +21,4 @@ class SvcTopstoriesV2JsonResponseDict(TypedDict):
     section: NotRequired[str]
     last_updated: NotRequired[str]
     num_results: NotRequired[int]
-    results: NotRequired[list[Article1 | Article1Dict]]
+    results: NotRequired[list[Article1Dict]]

@@ -13,4 +13,4 @@ class Fault(SdkBaseModel):
 
 class FaultDict(TypedDict):
     faultstring: NotRequired[str]
-    detail: NotRequired[Detail | DetailDict]
+    detail: NotRequired[DetailDict]

@@ -24,4 +24,4 @@ class SvcMostpopularV2EmailedJsonResponseDict(TypedDict):
     status: NotRequired[str]
     copyright: NotRequired[str]
     num_results: NotRequired[int]
-    results: NotRequired[list[EmailedArticle | EmailedArticleDict]]
+    results: NotRequired[list[EmailedArticleDict]]

@@ -14,5 +14,5 @@ class Byline(SdkBaseModel):
 
 class BylineDict(TypedDict):
     original: NotRequired[str]
-    person: NotRequired[list[Person | PersonDict]]
+    person: NotRequired[list[PersonDict]]
     organization: NotRequired[str]

@@ -29,5 +29,5 @@ class MultimediaDict(TypedDict):
     url: NotRequired[str]
     height: NotRequired[int]
     width: NotRequired[int]
-    legacy: NotRequired[Legacy | LegacyDict]
+    legacy: NotRequired[LegacyDict]
     crop_name: NotRequired[str]

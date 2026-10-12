@@ -1,7 +1,17 @@
 from __future__ import annotations
 
 from ..auth import AsyncAuthSchemes, AuthSchemes
-from ..core import ApiResult, AsyncRawClient, RawClient, RequestOptionsOrDict, SecuredRawResponse, json_decoder, param
+from ..core import (
+    ApiResult,
+    AsyncRawClient,
+    RawClient,
+    RequestOptionsOrDict,
+    SecuredRawResponse,
+    async_json_decoder,
+    json_decoder,
+    param,
+    unwrap,
+)
 from ..errors.get_archive_by_month_error import GetArchiveByMonthErrorBody, get_archive_by_month_error_mapper
 from ..models.svc_archive_v1_json_response import SvcArchiveV1JsonResponse
 from ..server.server import Server
@@ -20,7 +30,8 @@ class Archive:
         Args:
             year: Year: 1851-2019
             month: Year: 1-12
-            request_options: Per-call overrides for this one request, such as a timeout or extra headers.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
 
         Returns:
             An array of articles.
@@ -28,9 +39,9 @@ class Archive:
         Raises:
             ApiError: Unauthorized request, check api-key is set. Too many requests. You reached your per minute or per
                 day rate limit. ``error`` is ``SvcArchiveV1Json401Error1 | RawError``."""
-        return self._with_raw_response.get_archive_by_month(
-            year=year, month=month, request_options=request_options
-        ).unwrap()
+        return unwrap(
+            self._with_raw_response.get_archive_by_month(year=year, month=month, request_options=request_options)
+        )
 
     @property
     def with_raw_response(self) -> ArchiveWithRawResponse:
@@ -50,7 +61,8 @@ class AsyncArchive:
         Args:
             year: Year: 1851-2019
             month: Year: 1-12
-            request_options: Per-call overrides for this one request, such as a timeout or extra headers.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
 
         Returns:
             An array of articles.
@@ -58,9 +70,9 @@ class AsyncArchive:
         Raises:
             ApiError: Unauthorized request, check api-key is set. Too many requests. You reached your per minute or per
                 day rate limit. ``error`` is ``SvcArchiveV1Json401Error1 | RawError``."""
-        return (
+        return unwrap(
             await self._with_raw_response.get_archive_by_month(year=year, month=month, request_options=request_options)
-        ).unwrap()
+        )
 
     @property
     def with_raw_response(self) -> AsyncArchiveWithRawResponse:
@@ -77,7 +89,8 @@ class ArchiveWithRawResponse(SecuredRawResponse[RawClient, Server, AuthSchemes])
         Args:
             year: Year: 1851-2019
             month: Year: 1-12
-            request_options: Per-call overrides for this one request, such as a timeout or extra headers.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
 
         Returns:
             An ``ApiResult`` holding the deserialized response or the error body."""
@@ -102,7 +115,8 @@ class AsyncArchiveWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
         Args:
             year: Year: 1851-2019
             month: Year: 1-12
-            request_options: Per-call overrides for this one request, such as a timeout or extra headers.
+            request_options: Per-call overrides for this one request, such as a timeout, extra headers, or its retry
+                count and statuses.
 
         Returns:
             An ``ApiResult`` holding the deserialized response or the error body."""
@@ -111,7 +125,7 @@ class AsyncArchiveWithRawResponse(SecuredRawResponse[AsyncRawClient, Server, Asy
             url_template=self._server.default("/svc/archive/v1/{year}/{month}.json"),
             path_params=[param[int]("year", year), param[int]("month", month)],
             auth_scheme=self._auth.apikey,
-            decoder=json_decoder[SvcArchiveV1JsonResponse],
+            decoder=async_json_decoder[SvcArchiveV1JsonResponse],
             error_mapper=get_archive_by_month_error_mapper,
             request_options=request_options,
         )

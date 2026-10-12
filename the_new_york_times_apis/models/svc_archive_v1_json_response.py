@@ -13,4 +13,4 @@ class SvcArchiveV1JsonResponse(SdkBaseModel):
 
 class SvcArchiveV1JsonResponseDict(TypedDict):
     copyright: NotRequired[str]
-    response: NotRequired[Response1 | Response1Dict]
+    response: NotRequired[Response1Dict]

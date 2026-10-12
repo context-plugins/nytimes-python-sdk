@@ -11,4 +11,4 @@ class SvcArchiveV1Json401Error1(SdkBaseModel):
 
 
 class SvcArchiveV1Json401Error1Dict(TypedDict):
-    fault: NotRequired[Fault | FaultDict]
+    fault: NotRequired[FaultDict]

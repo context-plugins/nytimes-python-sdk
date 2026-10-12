@@ -10,8 +10,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /svc/mostpopular/v2/emailed/{period}.json`
 - **Auth**: `apikey`
-- **Signature**: `def get_most_emailed_articles(period: PeriodOrInt, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `period`
+- **Signature**: `def get_most_emailed_articles(*, period: PeriodOrInt = Period.VALUE_1, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `period` — path
 - **Returns (parsed)**: `SvcMostpopularV2EmailedJsonResponse`
 - **Returns (raw)**: `ApiResult[SvcMostpopularV2EmailedJsonResponse, GetMostEmailedArticlesErrorBody]`
@@ -28,8 +27,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /svc/mostpopular/v2/shared/{period}.json`
 - **Auth**: `apikey`
-- **Signature**: `def get_most_shared_articles(period: PeriodOrInt, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `period`
+- **Signature**: `def get_most_shared_articles(*, period: PeriodOrInt = Period.VALUE_1, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `period` — path
 - **Returns (parsed)**: `SvcMostpopularV2SharedJsonResponse`
 - **Returns (raw)**: `ApiResult[SvcMostpopularV2SharedJsonResponse, GetMostSharedArticlesErrorBody]`
@@ -46,8 +44,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /svc/mostpopular/v2/shared/{period}/{share_type}.json`
 - **Auth**: `apikey`
-- **Signature**: `def get_most_shared_articles_by_type(period: PeriodOrInt, share_type: ShareTypeOrStr, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `period`, `share_type`
+- **Signature**: `def get_most_shared_articles_by_type(*, period: PeriodOrInt = Period.VALUE_1, share_type: ShareTypeOrStr = ShareType.FACEBOOK, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `period` — path · `share_type` — path
 - **Returns (parsed)**: `SvcMostpopularV2SharedJsonResponse`
 - **Returns (raw)**: `ApiResult[SvcMostpopularV2SharedJsonResponse, GetMostSharedArticlesByTypeErrorBody]`
@@ -65,8 +62,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /svc/mostpopular/v2/viewed/{period}.json`
 - **Auth**: `apikey`
-- **Signature**: `def get_most_viewed_articles(period: PeriodOrInt, *, request_options: RequestOptionsOrDict | None = None)`
-  - required, positional: `period`
+- **Signature**: `def get_most_viewed_articles(*, period: PeriodOrInt = Period.VALUE_1, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `period` — path
 - **Returns (parsed)**: `SvcMostpopularV2ViewedJsonResponse`
 - **Returns (raw)**: `ApiResult[SvcMostpopularV2ViewedJsonResponse, GetMostViewedArticlesErrorBody]`

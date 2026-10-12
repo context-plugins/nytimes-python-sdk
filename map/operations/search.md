@@ -10,7 +10,7 @@ Each `###` block is one operation and assumes `sdk-map.md` is loaded: blocks omi
 
 - **Route**: `GET /svc/search/v2/articlesearch.json`
 - **Auth**: `apikey`
-- **Signature**: `def search_articles(*, begin_date: str | None = None, end_date: str | None = None, fq: str | None = None, page: int | None = None, q: str | None = None, sort: SortOrStr | None = None, request_options: RequestOptionsOrDict | None = None)`
+- **Signature**: `def search_articles(*, begin_date: str | None = None, end_date: str | None = None, fq: str | None = None, page: int | None = None, q: str | None = None, sort: SortOrStr | None = Sort.BEST, request_options: RequestOptionsOrDict | None = None)`
 - **Params**: `begin_date` — query · `end_date` — query · `fq` — query · `page` — query · `q` — query · `sort` — query
 - **Returns (parsed)**: `SvcSearchV2ArticlesearchJsonResponse`
 - **Returns (raw)**: `ApiResult[SvcSearchV2ArticlesearchJsonResponse, SearchArticlesErrorBody]`

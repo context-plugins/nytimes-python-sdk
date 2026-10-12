@@ -24,4 +24,4 @@ class SvcMostpopularV2SharedJsonResponseDict(TypedDict):
     status: NotRequired[str]
     copyright: NotRequired[str]
     num_results: NotRequired[int]
-    results: NotRequired[list[SharedArticle | SharedArticleDict]]
+    results: NotRequired[list[SharedArticleDict]]

@@ -15,4 +15,4 @@ class SvcSearchV2ArticlesearchJsonResponse(SdkBaseModel):
 class SvcSearchV2ArticlesearchJsonResponseDict(TypedDict):
     status: NotRequired[str]
     copyright: NotRequired[str]
-    response: NotRequired[Response | ResponseDict]
+    response: NotRequired[ResponseDict]

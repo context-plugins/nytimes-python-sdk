@@ -96,5 +96,5 @@ class EmailedArticleDict(TypedDict):
     org_facet: NotRequired[list[str]]
     per_facet: NotRequired[list[str]]
     geo_facet: NotRequired[list[str]]
-    media: NotRequired[list[Media | MediaDict]]
+    media: NotRequired[list[MediaDict]]
     uri: NotRequired[str]
